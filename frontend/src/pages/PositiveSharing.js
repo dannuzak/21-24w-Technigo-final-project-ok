@@ -1,70 +1,58 @@
 import React, { useState, useEffect } from 'react'
+import { db } from '../firebaseConfig'
+import { collection, addDoc, getDocs } from "firebase/firestore"
+ 
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 import styled from 'styled-components/macro'
 
-import { API_URL_POS_SHARING,  THUMBSUP_URL  } from '../reusable/urls'
+//import { API_URL_POS_SHARING,  THUMBSUP_URL  } from '../reusable/urls'
 import HeroImage from '../assets/figma-pic.png'
 import { device } from '../Commons/breakpoints' 
 
 import Button from 'components/Button'
 
 const PositiveSharing = () => {
-  
   const [positiveThoughtsList, setPositiveThoughtsList] = useState([])
   const [newPositiveThought, setNewPositiveThought] = useState('')
 
  
-  useEffect(() => {
-    fetchPositiveThoughts()
-  }, [])
+  const onNewPositiveThoughtChange = (e) => {
+    setNewPositiveThought(e.target.value)
+  }
 
-    const fetchPositiveThoughts = () => {
-      fetch(API_URL_POS_SHARING)
-        .then((res) => res.json())
-        .then((thoughts) => {
-          if (thoughts.success) {
-            setPositiveThoughtsList(thoughts.allPositiveThoughts)
-          }
+  const onFormSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      const docRef = await addDoc(collection(db, "todos"), {
+        newPositiveThought: newPositiveThought,    
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+
+    //setNewPositiveThought('')
+  }
+  
+  const fetchPost = async () => {
+       
+    await getDocs(collection(db, "todos"))
+        .then((querySnapshot)=>{              
+            const newData = querySnapshot.docs
+                .map((doc) => ({...doc.data(), id:doc.id }));
+                setPositiveThoughtsList(newData);                
+            console.log(positiveThoughtsList, newData);
         })
-        .catch((err) => console.error(err))
-    }
-  
-    const onNewPositiveThoughtChange = (event) => {
-      setNewPositiveThought(event.target.value)
-    }
+   
+}
 
-    const onFormSubmit = (event) => {
-      event.preventDefault()
-  
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-        },
-        body: JSON.stringify({ message: newPositiveThought }),
-      }
-  
-      fetch(API_URL_POS_SHARING, options)
-        .then((res) => res.json())
-        .then(() => fetchPositiveThoughts())
-        .catch((err) => console.error(err))
-  
-      setNewPositiveThought('')
-    }
-  
-    const onThumbsupIncrease = (_id) => {
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-      fetch(THUMBSUP_URL(_id), options)
-        .then((res) => res.json())
-        .then(() => fetchPositiveThoughts())
-        .catch((err) => console.error(err))
-    }
+useEffect(()=>{
+    fetchPost();
+}, [])
+
+
   return (
     <>
     
@@ -90,9 +78,9 @@ const PositiveSharing = () => {
         <ThoughtWrapper key={thought._id}>
           <p>{thought.message}</p>
           <Date>{moment(thought.createdAt).fromNow()}</Date>
-          <ThumbsUpBtn onClick={() => onThumbsupIncrease(thought._id)}>
+         {/*  <ThumbsUpBtn onClick={() => onThumbsupIncrease(thought._id)}>
             {thought.thumbsup}👍
-          </ThumbsUpBtn>  
+          </ThumbsUpBtn>  */} 
         </ThoughtWrapper>        
       ))}
         </ThoughtsContainer>
@@ -223,3 +211,59 @@ const SignButton = styled.button`
 
 export default PositiveSharing
 
+// OLD CODE
+
+/* const [positiveThoughtsList, setPositiveThoughtsList] = useState([])
+const [newPositiveThought, setNewPositiveThought] = useState('')
+
+
+useEffect(() => {
+  fetchPositiveThoughts()
+}, [])
+
+  const fetchPositiveThoughts = () => {
+    fetch(API_URL_POS_SHARING)
+      .then((res) => res.json())
+      .then((thoughts) => {
+        if (thoughts.success) {
+          setPositiveThoughtsList(thoughts.allPositiveThoughts)
+        }
+      })
+      .catch((err) => console.error(err))
+  }
+
+  const onNewPositiveThoughtChange = (event) => {
+    setNewPositiveThought(event.target.value)
+  }
+
+  const onFormSubmit = (event) => {
+    event.preventDefault()
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({ message: newPositiveThought }),
+    }
+
+    fetch(API_URL_POS_SHARING, options)
+      .then((res) => res.json())
+      .then(() => fetchPositiveThoughts())
+      .catch((err) => console.error(err))
+
+    setNewPositiveThought('')
+  }
+
+  const onThumbsupIncrease = (_id) => {
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+    fetch(THUMBSUP_URL(_id), options)
+      .then((res) => res.json())
+      .then(() => fetchPositiveThoughts())
+      .catch((err) => console.error(err))
+  } */
