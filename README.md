@@ -1,6 +1,6 @@
 <!-- @format -->
 
-# Tröttis - Final project
+# Safe Space - Final project
 
 Tröttis is community based website for people experiencing burnout syndrom where they can found information, resources and a forum to share their thoughts and feelings in a safe space.
 
@@ -33,6 +33,8 @@ For the routing I used **React Router**.
 For the styling I used **Styled components**.
 
 ## Backend
+
+⚠ UPDATE: Due to the removal of Heroku's free dynos (where we had our server hosted), I had to shut this server down, so the app is not fully functional momentarily. I will experiment with FireBase to make it work.
 
 The **RESTfulAPI** in the backend is built with **Node.js**. The data is stored in a **database** built with **MongoDB** and **Mongoose**. The dataset was created with **Mockaroo**, a database generator using fake data.
 
